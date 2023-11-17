@@ -1,5 +1,8 @@
 {
     "name": "studio.bluesnake.library",
     "version": "0.0.1",
-    "displayName": "Blue Snake Library"
+    "displayName": "Blue Snake Library",
+    "dependencies": {
+        "nl.jeffreylanters.tweens": "git+https://github.com/jeffreylanters/unity-tweens"
+    }
 }
