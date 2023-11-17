@@ -7,5 +7,8 @@ Coming Soon...
 ## Features
 
 - Singleton
+- Bootstrapper
 - EventManager
 - AudioManager
+- UI Animations
+- MenuManager
