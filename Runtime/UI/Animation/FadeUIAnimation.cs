@@ -10,29 +10,34 @@ namespace BlueSnake.UI.Animation {
 
         [Header("Properties")]
         [SerializeField]
+        private FadeType type = FadeType.FadeOut;
+        [SerializeField]
         private bool handleRaycasts = true;
 
+        [Header("Fade")]
         [SerializeField]
-        private float fadeOutDelay = 0f;
+        private float fadeDelay;
         [SerializeField]
-        private float fadeOutDuration = 1f;
+        private float fadeDuration = 1f;
+        
+        [Header("Fade Back")]
         [SerializeField]
-        private float fadeInDelay = 0f;
+        private float fadeBackDelay;
         [SerializeField]
-        private float fadeInDuration = 1f;
+        private float fadeBackDuration = 1f;
         
         private TweenInstance _tweenInstance;
         
         public override void StartAnimation(UIAnimationCallback callback) {
             _tweenInstance?.Cancel();
             if (handleRaycasts) {
-                target.blocksRaycasts = false;
+                target.blocksRaycasts = type != FadeType.FadeOut;
             }
             FloatTween tween = new FloatTween {
                 from = target.alpha,
-                to = 0f,
-                delay = fadeOutDelay,
-                duration = fadeOutDuration,
+                to = type == FadeType.FadeOut ? 0f : 1f,
+                delay = fadeDelay,
+                duration = fadeDuration,
                 onUpdate = (_, value) => {
                     target.alpha = value;
                 },
@@ -46,16 +51,17 @@ namespace BlueSnake.UI.Animation {
         public override void StopAnimation(bool force, UIAnimationCallback callback) {
             _tweenInstance?.Cancel();
             if (handleRaycasts) {
-                target.blocksRaycasts = true;
+                target.blocksRaycasts = type == FadeType.FadeOut;
+
             }
             if (force) {
                 target.alpha = 1f;
             } else {
                 FloatTween tween = new FloatTween {
                     from = target.alpha,
-                    to = 1f,
-                    delay = fadeInDelay,
-                    duration = fadeInDuration,
+                    to = type == FadeType.FadeOut ? 1f : 0f,
+                    delay = fadeBackDelay,
+                    duration = fadeBackDuration,
                     onUpdate = (_, value) => { target.alpha = value; },
                     onEnd = _ => {
                         callback?.Invoke();
@@ -63,6 +69,10 @@ namespace BlueSnake.UI.Animation {
                 };
                 _tweenInstance = target.gameObject.AddTween(tween);
             }
+        }
+        
+        public enum FadeType {
+            FadeIn, FadeOut
         }
     }
 }
