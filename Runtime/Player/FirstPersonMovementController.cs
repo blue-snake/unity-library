@@ -1,4 +1,5 @@
-﻿using BlueSnake.Event;
+﻿using System;
+using BlueSnake.Event;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -6,7 +7,6 @@ namespace BlueSnake.Player {
     public class FirstPersonMovementController : MonoBehaviour {
         [Header("Reference")]
         public Transform orientation;
-        public new Camera camera;
 
         public CharacterController controller;
 
@@ -32,11 +32,20 @@ namespace BlueSnake.Player {
         [HideInInspector]
         public bool isSprinting;
 
+        [Header("Inputs")]
+        [SerializeField]
+        private InputActionReference moveInput;
+        [SerializeField]
+        private InputActionReference sprintInput;
+        [SerializeField]
+        private InputActionReference jumpInput;
+        
+
         /** Private fields **/
         private Vector3 _gravityVelocity;
         private Vector3 _currentDirection;
         private Vector3 _currentMoveVelocity;
-        private Vector2 _currentMoveInput;
+        private Vector3 _currentMoveDampVelocity;
         private float _jumpHeight;
         private bool _hasLanded;
         private bool _moved;
@@ -44,21 +53,24 @@ namespace BlueSnake.Player {
         /** Event **/
         private EventManager _eventManager;
 
+        private void Start() {
+            jumpInput.action.performed += OnPlayerJump;
+        }
+
         public void InitializeEventManager(EventManager eventManager) {
             _eventManager = eventManager;
         }
 
         public virtual void Update() {
-            if (camera != null) {
-                orientation.rotation = Quaternion.Euler(0, camera.transform.rotation.eulerAngles.y, 0);
-            }
+            isSprinting = sprintInput.action.IsPressed();
+            Vector2 input = moveInput.action.ReadValue<Vector2>();
             isGrounded = Physics.CheckSphere(groundCheckOrigin.position, groundCheckRadius, groundCheckLayer);
 
             HandleLanding();
-            HandleGravity();
+            
 
-            float verticalInput = _currentMoveInput.y;
-            float horizontalInput = _currentMoveInput.x;
+            float verticalInput = input.y;
+            float horizontalInput = input.x;
 
             Vector3 direction = (orientation.forward * verticalInput + orientation.right * horizontalInput).normalized;
 
@@ -73,53 +85,20 @@ namespace BlueSnake.Player {
                 if (moveEvent.Cancelled) return;
                 moveSpeed = moveEvent.Speed;
                 direction = moveEvent.Direction;
-
                 _moved = true;
             } else if (horizontalInput == 0 && verticalInput == 0 && _moved) {
                 _moved = false;
                 _eventManager.Publish(new PlayerMoveStopEvent());
             }
-
-            Vector3 position = transform.position;
-            Vector3 move = direction * (moveSpeed * Time.deltaTime);
-
-            Vector3.SmoothDamp(position, position + move, ref _currentMoveVelocity, smoothTime);
-            controller.Move(_currentMoveVelocity);
-        }
-
-        /// <summary>
-        /// Register under unity event in input actions
-        ///
-        /// Those setting should be applied to the input:
-        /// Action type: Value
-        /// Control type: Vector2
-        /// Mode: Digital
-        /// </summary>
-        /// <param name="context"></param>
-        public void OnMove(InputAction.CallbackContext context) {
-            _currentMoveInput = context.ReadValue<Vector2>();
+            
+            _currentMoveVelocity =Vector3.SmoothDamp(_currentMoveVelocity, direction * (moveSpeed * 2f), ref _currentMoveDampVelocity, smoothTime);
+            controller.Move(_currentMoveVelocity * Time.deltaTime);
+            
+            HandleGravity();
         }
         
-        /// <summary>
-        /// Register under unity event in input actions
-        ///
-        /// Those setting should be applied to the input:
-        /// Action type: Button
-        /// Mode: Digital
-        /// </summary>
-        /// <param name="context"></param>
-        public void OnSprint(InputAction.CallbackContext context) {
-            isSprinting = context.started || !context.canceled;
-        }
-
-        /// <summary>
-        /// Register under unity event in input actions
-        ///
-        /// Those settings should be applied to the input:
-        /// Interactions: Tap
-        /// </summary>
-        /// <param name="context"></param>
-        public void OnJump(InputAction.CallbackContext context) {
+        
+        public void OnPlayerJump(InputAction.CallbackContext context) {
             if (jumpHeight == 0) return;
 
             if (!isGrounded) return;
