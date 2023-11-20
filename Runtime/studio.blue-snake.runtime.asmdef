@@ -2,7 +2,8 @@
     "name": "studio.blue-snake.runtime",
     "rootNamespace": "BlueSnake",
     "references": [
-        "nl.jeffreylanters.tweens"
+        "nl.jeffreylanters.tweens",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
