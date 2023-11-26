@@ -20,4 +20,25 @@ namespace BlueSnake.Container.Event {
         public int Index;
         public ItemStack ItemStack;
     }
+    
+    public class InventoryPickUpEvent : ICancelableEvent {
+
+        public Inventory Inventory;
+        public PickableItem PickableItem;
+        private bool _cancelled;
+        
+        public bool IsCancelled() {
+            return _cancelled;
+        }
+
+        public void SetCancelled(bool value) {
+            _cancelled = value;
+        }
+    }
+    
+    public class InventoryPickUpHoverEvent : IEvent {
+
+        public Inventory Inventory;
+        public PickableItem PickableItem;
+    }
 }

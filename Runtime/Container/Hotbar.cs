@@ -21,16 +21,7 @@ namespace BlueSnake.Container {
         public InputActionReference secondaryUse;
 
         private EquippedItem _currentEquippedItem;
-        private EventManager _eventManager;
-
-        /// <summary>
-        /// Initialize event bus
-        /// It is optional
-        /// </summary>
-        /// <param name="eventManager"></param>
-        public void InitializeEventManager(EventManager eventManager) {
-            _eventManager = eventManager;
-        }
+        
 
         private void Awake() {
             for (int i = 0; i < belt.Count; i++) {
@@ -51,7 +42,7 @@ namespace BlueSnake.Container {
                 primaryUse.action.performed += _ => {
                     if (HasEquippedItem()) {
                         _currentEquippedItem.OnPrimaryUse(this);
-                        _eventManager?.Publish(new HotbarPrimaryUseEvent {
+                        inventory.eventManager?.Publish(new HotbarPrimaryUseEvent {
                             Hotbar = this,
                             EquippedItem = _currentEquippedItem
                         });
@@ -62,13 +53,21 @@ namespace BlueSnake.Container {
                 secondaryUse.action.performed += _ => {
                     if (HasEquippedItem()) {
                         _currentEquippedItem.OnSecondaryUse(this);
-                        _eventManager?.Publish(new HotbarSecondaryUseEvent {
+                        inventory.eventManager?.Publish(new HotbarSecondaryUseEvent {
                             Hotbar = this,
                             EquippedItem = _currentEquippedItem
                         });
                     }
                 };
             }
+            inventory.eventManager?.Subscribe<InventoryRemoveItemEvent>(ev => {
+                if (!HasEquippedItem()) {
+                    return;
+                }
+                if (_currentEquippedItem.inventoryIndex == ev.Index) {
+                    UnEquip();
+                }
+            });
         }
 
         private void Update() {
@@ -105,7 +104,7 @@ namespace BlueSnake.Container {
             _currentEquippedItem = Instantiate(item.type.equippedPrefab, itemContainer);
             _currentEquippedItem.inventoryIndex = index;
             _currentEquippedItem.OnEquip(this);
-            _eventManager?.Publish(new HotbarEquipEvent {
+            inventory.eventManager?.Publish(new HotbarEquipEvent {
                 Hotbar = this,
                 EquippedItem = _currentEquippedItem
             });
@@ -120,7 +119,7 @@ namespace BlueSnake.Container {
                     Destroy(child.gameObject);
                 }
                 _currentEquippedItem.OnUnEquip(this);
-                _eventManager?.Publish(new HotbarUnEquipEvent {
+                inventory.eventManager?.Publish(new HotbarUnEquipEvent {
                     Hotbar = this,
                     EquippedItem = _currentEquippedItem
                 });

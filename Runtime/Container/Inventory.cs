@@ -12,15 +12,61 @@ namespace BlueSnake.Container {
         [Header("Properties")]
         public int maxSize = 10;
 
-        private EventManager _eventManager;
+        public EventManager eventManager;
 
         /// <summary>
         /// Initialize event bus.
-        /// It is optional
+        /// It is optional. Some functionalities may not work
         /// </summary>
         /// <param name="eventManager"></param>
         public void InitializeEventManager(EventManager eventManager) {
-            _eventManager = eventManager;
+            this.eventManager = eventManager;
+        }
+
+        /// <summary>
+        /// Pick up item
+        /// Can be cancelled with events
+        /// </summary>
+        /// <param name="pickable">Can only be false if event is cancelled</param>
+        public bool PickUpItem(PickableItem pickable) {
+            InventoryPickUpEvent ev = new InventoryPickUpEvent {
+                Inventory = this,
+                PickableItem = pickable
+            };
+            eventManager?.Publish(ev);
+            if (ev.IsCancelled()) {
+                return false;
+            }
+            Destroy(pickable.gameObject);
+            AddItem(pickable.item);
+            return true;
+        }
+
+        /// <summary>
+        /// Drop item by index
+        /// Throw rigidbody with force in specific direction
+        /// </summary>
+        /// <param name="index"></param>
+        /// <param name="position"></param>
+        /// <param name="direction"></param>
+        /// <param name="force"></param>
+        /// <returns>Can only be false if item not found</returns>
+        public bool DropItem(int index, Vector3 position, Vector3 direction, float force) {
+            if (!HasItem(index)) {
+                return false;
+            }
+            ItemStack stack = GetItem(index);
+            GameObject dropItemObject = Instantiate(stack.type.worldPrefab, position, Quaternion.identity);
+            Rigidbody rigidbody = dropItemObject.GetComponent<Rigidbody>();
+            if (rigidbody != null) {
+                rigidbody.AddForce(direction * force, ForceMode.Impulse);
+            }
+            PickableItem pickable = dropItemObject.GetComponent<PickableItem>();
+            if (pickable != null) {
+                pickable.item = stack;
+            }
+            RemoveItem(index);
+            return true;
         }
 
         /// <summary>
@@ -39,7 +85,7 @@ namespace BlueSnake.Container {
                 int next = current.amount + stack.amount;
                 if (next <= current.type.maxStackSize) {
                     current.amount = next;
-                    _eventManager?.Publish(new InventoryUpdateItemEvent() {
+                    eventManager?.Publish(new InventoryUpdateItemEvent() {
                         Inventory = this,
                         ItemStack = current
                     });
@@ -49,7 +95,7 @@ namespace BlueSnake.Container {
                 current.amount = current.type.maxStackSize;
                 stack.amount -= difference;
                     
-                _eventManager?.Publish(new InventoryUpdateItemEvent() {
+                eventManager?.Publish(new InventoryUpdateItemEvent() {
                     Inventory = this,
                     ItemStack = current
                 });
@@ -60,7 +106,7 @@ namespace BlueSnake.Container {
 
             if (!IsInventoryFull()) {
                 items.Add(stack);
-                _eventManager?.Publish(new InventoryAddItemEvent {
+                eventManager?.Publish(new InventoryAddItemEvent {
                     Inventory = this,
                     ItemStack = stack
                 });
@@ -113,7 +159,7 @@ namespace BlueSnake.Container {
                 int next = current.amount - remaining;
                 if (next > 0) {
                     current.amount = next;
-                    _eventManager?.Publish(new InventoryUpdateItemEvent() {
+                    eventManager?.Publish(new InventoryUpdateItemEvent() {
                         Inventory = this,
                         ItemStack = current
                     });
@@ -136,7 +182,7 @@ namespace BlueSnake.Container {
             
             ItemStack current = items[index];
             items.RemoveAt(index);
-            _eventManager?.Publish(new InventoryRemoveItemEvent() {
+            eventManager?.Publish(new InventoryRemoveItemEvent() {
                 Inventory = this,
                 Index = index,
                 ItemStack = current
