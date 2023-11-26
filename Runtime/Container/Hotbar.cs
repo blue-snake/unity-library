@@ -23,6 +23,11 @@ namespace BlueSnake.Container {
         private EquippedItem _currentEquippedItem;
         private EventManager _eventManager;
 
+        /// <summary>
+        /// Initialize event bus
+        /// It is optional
+        /// </summary>
+        /// <param name="eventManager"></param>
         public void InitializeEventManager(EventManager eventManager) {
             _eventManager = eventManager;
         }
@@ -66,6 +71,27 @@ namespace BlueSnake.Container {
             }
         }
 
+        private void Update() {
+            if (!HasEquippedItem()) {
+                return;
+            }
+            if (primaryUse != null) {
+                if (primaryUse.action.IsPressed()) {
+                    _currentEquippedItem.OnPrimaryHoldUse(this);
+                }
+            }
+
+            if (secondaryUse != null) {
+                if (secondaryUse.action.IsPressed()) {
+                    _currentEquippedItem.OnSecondaryHoldUse(this);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Equip specific item by inventory index
+        /// </summary>
+        /// <param name="index">Mostly used for slots</param>
         public void Equip(int index) {
             UnEquip();
             if (!inventory.HasItem(index)) {
@@ -85,6 +111,9 @@ namespace BlueSnake.Container {
             });
         }
 
+        /// <summary>
+        /// Unequip current equipped item
+        /// </summary>
         public void UnEquip() {
             if (HasEquippedItem()) {
                 foreach (Transform child in itemContainer) {
