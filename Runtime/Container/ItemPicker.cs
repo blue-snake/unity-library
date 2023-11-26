@@ -42,7 +42,13 @@ namespace BlueSnake.Container {
         }
 
         private void Update() {
-            currentSelectedItem = null;
+            if (currentSelectedItem != null) {
+                inventory.eventManager?.Publish(new InventoryPickUpHoverEndEvent {
+                    Inventory = inventory,
+                    PickableItem = currentSelectedItem
+                });
+                currentSelectedItem = null;
+            }
             if (Physics.Raycast(camera.transform.position, camera.transform.forward, out RaycastHit hit, range, itemLayer)) {
                 if (hit.transform.gameObject.TryGetComponent(out PickableItem pickableItem)) {
                     inventory.eventManager?.Publish(new InventoryPickUpHoverEvent {

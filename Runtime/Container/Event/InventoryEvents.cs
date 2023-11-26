@@ -41,4 +41,10 @@ namespace BlueSnake.Container.Event {
         public Inventory Inventory;
         public PickableItem PickableItem;
     }
+    
+    public class InventoryPickUpHoverEndEvent : IEvent {
+
+        public Inventory Inventory;
+        public PickableItem PickableItem;
+    }
 }
