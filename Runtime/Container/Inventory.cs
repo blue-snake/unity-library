@@ -90,6 +90,15 @@ namespace BlueSnake.Container {
         }
 
         /// <summary>
+        /// Check if item exists by index
+        /// </summary>
+        /// <param name="index">Mostly used for slots</param>
+        /// <returns></returns>
+        public bool HasItem(int index) {
+            return items.Count - 1 >= index;
+        }
+
+        /// <summary>
         /// Remove specific item type from inventory (Taking items from inventory by x amount)
         /// </summary>
         /// <param name="itemTypeId"></param>

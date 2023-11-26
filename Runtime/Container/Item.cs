@@ -9,6 +9,8 @@ namespace BlueSnake.Container {
         public string displayName;
         public int maxStackSize = 10;
 
+        public GameObject worldPrefab;
+        public EquippedItem equippedPrefab;
     }
     
 }
