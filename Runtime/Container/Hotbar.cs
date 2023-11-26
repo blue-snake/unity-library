@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using BlueSnake.Container.Event;
+using BlueSnake.Event;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -19,6 +21,11 @@ namespace BlueSnake.Container {
         public InputActionReference secondaryUse;
 
         private EquippedItem _currentEquippedItem;
+        private EventManager _eventManager;
+
+        public void InitializeEventManager(EventManager eventManager) {
+            _eventManager = eventManager;
+        }
 
         private void Awake() {
             for (int i = 0; i < belt.Count; i++) {
@@ -39,6 +46,10 @@ namespace BlueSnake.Container {
                 primaryUse.action.performed += _ => {
                     if (HasEquippedItem()) {
                         _currentEquippedItem.OnPrimaryUse(this);
+                        _eventManager?.Publish(new HotbarPrimaryUseEvent {
+                            Hotbar = this,
+                            EquippedItem = _currentEquippedItem
+                        });
                     }
                 };
             }
@@ -46,6 +57,10 @@ namespace BlueSnake.Container {
                 secondaryUse.action.performed += _ => {
                     if (HasEquippedItem()) {
                         _currentEquippedItem.OnSecondaryUse(this);
+                        _eventManager?.Publish(new HotbarSecondaryUseEvent {
+                            Hotbar = this,
+                            EquippedItem = _currentEquippedItem
+                        });
                     }
                 };
             }
@@ -64,6 +79,10 @@ namespace BlueSnake.Container {
             _currentEquippedItem = Instantiate(item.type.equippedPrefab, itemContainer);
             _currentEquippedItem.inventoryIndex = index;
             _currentEquippedItem.OnEquip(this);
+            _eventManager?.Publish(new HotbarEquipEvent {
+                Hotbar = this,
+                EquippedItem = _currentEquippedItem
+            });
         }
 
         public void UnEquip() {
@@ -72,6 +91,10 @@ namespace BlueSnake.Container {
                     Destroy(child.gameObject);
                 }
                 _currentEquippedItem.OnUnEquip(this);
+                _eventManager?.Publish(new HotbarUnEquipEvent {
+                    Hotbar = this,
+                    EquippedItem = _currentEquippedItem
+                });
                 _currentEquippedItem = null;
             }
         }
