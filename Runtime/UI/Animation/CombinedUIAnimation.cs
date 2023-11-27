@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections;
+using System.Threading;
 using UnityEngine;
 
 namespace BlueSnake.UI.Animation {
@@ -16,15 +17,19 @@ namespace BlueSnake.UI.Animation {
                 return;
             }
             CountdownEvent latch = new CountdownEvent(animations.Length);
-            ThreadPool.QueueUserWorkItem(_ => {
-                latch.Wait();
-                callback.Invoke();
-            });
+            StartCoroutine(InvokeCallback(latch, callback));
             foreach (UIAnimation animation in animations) {
                 animation.StartAnimation(() => {
                     latch.Signal();
                 });
+            } 
+        }
+
+        private IEnumerator InvokeCallback(CountdownEvent latch, UIAnimationCallback callback) {
+            while (latch.CurrentCount != 0) {
+                yield return null;
             }
+            callback.Invoke();
         }
 
         public override void StopAnimation(bool force, UIAnimationCallback callback) {
@@ -36,10 +41,7 @@ namespace BlueSnake.UI.Animation {
                 return;
             }
             CountdownEvent latch = new CountdownEvent(animations.Length);
-            ThreadPool.QueueUserWorkItem(_ => {
-                latch.Wait();
-                callback();
-            });
+            StartCoroutine(InvokeCallback(latch, callback));
             foreach (UIAnimation animation in animations) {
                 animation.StopAnimation(force, () => {
                     latch.Signal();

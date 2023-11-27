@@ -45,6 +45,7 @@ namespace BlueSnake.UI.Animation {
                     callback?.Invoke();
                 }
             };
+            
             _tweenInstance = target.gameObject.AddTween(tween);
         }
 
