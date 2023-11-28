@@ -87,7 +87,6 @@ namespace BlueSnake.Player {
 
             HandleLanding();
             
-
             float verticalInput = input.y;
             float horizontalInput = input.x;
 
@@ -123,7 +122,7 @@ namespace BlueSnake.Player {
                 _eventManager?.Publish(new PlayerMoveStopEvent());
             }
             
-            _currentMoveVelocity =Vector3.SmoothDamp(_currentMoveVelocity, direction * (moveSpeed * 2f), ref _currentMoveDampVelocity, smoothTime);
+            _currentMoveVelocity = Vector3.SmoothDamp(_currentMoveVelocity, direction * (moveSpeed * 2f), ref _currentMoveDampVelocity, smoothTime);
             controller.Move(_currentMoveVelocity * Time.deltaTime);
             
             HandleGravity();

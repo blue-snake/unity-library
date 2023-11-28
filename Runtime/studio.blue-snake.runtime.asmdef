@@ -2,14 +2,16 @@
     "name": "studio.blue-snake.runtime",
     "rootNamespace": "BlueSnake",
     "references": [
-        "nl.jeffreylanters.tweens",
-        "Unity.InputSystem"
+        "Unity.InputSystem",
+        "nl.jeffreylanters.tweens"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Newtonsoft.Json.dll"
+    ],
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],
