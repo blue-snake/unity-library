@@ -137,7 +137,7 @@ namespace BlueSnake.Player {
                 NewValue = _currentStamina,
                 OldValue = oldStamina
             });
-            staminaBar.SetValue(_currentStamina / 100);
+            staminaBar?.SetValue(_currentStamina / 100);
         }
         
         
