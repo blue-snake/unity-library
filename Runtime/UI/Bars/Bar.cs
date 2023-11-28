@@ -20,7 +20,7 @@ namespace BlueSnake.UI.Bars {
             currentValue = Mathf.Clamp(value, 0f, maxValue);
         }
 
-        public virtual float GetCurrentValue() {
+        public float GetCurrentValue() {
             return currentValue;
         }
     }
