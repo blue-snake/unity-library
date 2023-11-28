@@ -1,5 +1,6 @@
 ﻿using System;
 using BlueSnake.Event;
+using BlueSnake.UI.Bars;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -9,6 +10,9 @@ namespace BlueSnake.Player {
         public Transform orientation;
 
         public CharacterController controller;
+
+        [SerializeField]
+        private FillAmountBar staminaBar;
 
         [Header("Properties")]
         public float gravity = -25f;
@@ -32,6 +36,18 @@ namespace BlueSnake.Player {
         [HideInInspector]
         public bool isSprinting;
 
+        [Header("Stamina")]
+        [SerializeField]
+        private bool staminaEnabled = true;
+        [SerializeField]
+        private float maxStamina = 100f;
+        [SerializeField]
+        private float staminaTakeAmount = 1f;
+        [SerializeField]
+        private float staminaRegenAmount = 2f;
+        [SerializeField]
+        private float staminaTime = 0.1f;
+
         [Header("Inputs")]
         [SerializeField]
         private InputActionReference moveInput;
@@ -49,12 +65,15 @@ namespace BlueSnake.Player {
         private float _jumpHeight;
         private bool _hasLanded;
         private bool _moved;
-
+        private float _currentStaminaTime;
+        private float _currentStamina;
+        
         /** Event **/
         private EventManager _eventManager;
 
         private void Start() {
             jumpInput.action.performed += OnPlayerJump;
+            _currentStamina = maxStamina;
         }
 
         public void InitializeEventManager(EventManager eventManager) {
@@ -73,28 +92,52 @@ namespace BlueSnake.Player {
             float horizontalInput = input.x;
 
             Vector3 direction = (orientation.forward * verticalInput + orientation.right * horizontalInput).normalized;
-
             float moveSpeed = isSprinting ? sprintSpeed : speed;
+            if (staminaEnabled) {
+                _currentStaminaTime += Time.deltaTime;
+                if (isSprinting && _currentStaminaTime >= staminaTime) {
+                    _currentStaminaTime = 0f;
+                    SetStamina(_currentStamina-staminaTakeAmount);
+                } else if (!isSprinting && _currentStaminaTime >= staminaTime) {
+                    _currentStaminaTime = 0f;
+                    SetStamina(_currentStamina+staminaRegenAmount);
+                }
+                if (_currentStamina <= 0) {
+                    moveSpeed = speed;
+                }
+                
+            }
             if (horizontalInput != 0 || verticalInput != 0) {
                 PlayerMoveEvent moveEvent = new PlayerMoveEvent {
                     Speed = moveSpeed,
                     Cancelled = false,
                     Direction = direction
                 };
-                _eventManager.Publish(moveEvent);
+                _eventManager?.Publish(moveEvent);
                 if (moveEvent.Cancelled) return;
                 moveSpeed = moveEvent.Speed;
                 direction = moveEvent.Direction;
                 _moved = true;
             } else if (horizontalInput == 0 && verticalInput == 0 && _moved) {
                 _moved = false;
-                _eventManager.Publish(new PlayerMoveStopEvent());
+                _eventManager?.Publish(new PlayerMoveStopEvent());
             }
             
             _currentMoveVelocity =Vector3.SmoothDamp(_currentMoveVelocity, direction * (moveSpeed * 2f), ref _currentMoveDampVelocity, smoothTime);
             controller.Move(_currentMoveVelocity * Time.deltaTime);
             
             HandleGravity();
+        }
+
+        private void SetStamina(float stamina) {
+            float oldStamina = _currentStamina;
+            _currentStamina = Mathf.Clamp(stamina, 0, maxStamina);
+            
+            _eventManager?.Publish(new PlayerStaminaChangeEvent {
+                NewValue = _currentStamina,
+                OldValue = oldStamina
+            });
+            staminaBar.SetValue(_currentStamina / 100);
         }
         
         
@@ -106,7 +149,7 @@ namespace BlueSnake.Player {
             PlayerJumpEvent jumpEvent = new PlayerJumpEvent {
                 Height = jumpHeight
             };
-            _eventManager.Publish(jumpEvent);
+            _eventManager?.Publish(jumpEvent);
             if (jumpEvent.Cancelled) return;
             _jumpHeight = jumpEvent.Height;
         }
@@ -120,7 +163,7 @@ namespace BlueSnake.Player {
             } else {
                 if (!_hasLanded) {
                     _hasLanded = true;
-                    _eventManager.Publish(new PlayerLandEvent());
+                    _eventManager?.Publish(new PlayerLandEvent());
                 }
             }
         }
@@ -158,6 +201,12 @@ namespace BlueSnake.Player {
         public float Height { get; set; }
 
         public bool Cancelled { get; set; }
+    }
+    
+    public class PlayerStaminaChangeEvent : IEvent {
+        public float NewValue { get; set; }
+
+        public float OldValue { get; set; }
     }
 
     public class PlayerLandEvent : IEvent { }
