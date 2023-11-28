@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using UnityEngine;
 
@@ -13,7 +14,7 @@ namespace BlueSnake.File{
         private bool _savingDelayed;
         
         public FileJsonWrapper(string filePath, int saveDelayMillis) {
-            _filePath = filePath;
+            _filePath = Application.persistentDataPath + "/" + filePath;;
             _saveDelayMillis = saveDelayMillis;
             Load();
         }
@@ -34,13 +35,13 @@ namespace BlueSnake.File{
             System.IO.File.WriteAllText(GetFullPath(), JsonConvert.SerializeObject(Entity, Formatting.Indented));
         }
 
-        public void SaveDelayed() {
+        public async void SaveDelayed() {
             if (_savingDelayed) {
                 return;
             }
             _savingDelayed = true;
-            ThreadPool.QueueUserWorkItem(_ => {
-                Thread.Sleep(_saveDelayMillis);
+            await Task.Run(() => {
+                Task.Delay(_saveDelayMillis).Wait();
                 Save();
                 _savingDelayed = false;
             });
@@ -51,7 +52,7 @@ namespace BlueSnake.File{
         }
 
         public string GetFullPath() {
-            return Application.persistentDataPath + "/" + _filePath;
+            return _filePath;
         }
     }
 }
