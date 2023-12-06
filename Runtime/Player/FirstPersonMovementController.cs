@@ -129,13 +129,16 @@ namespace BlueSnake.Player {
         }
 
         private void SetStamina(float stamina) {
-            float oldStamina = _currentStamina;
-            _currentStamina = Mathf.Clamp(stamina, 0, maxStamina);
-            
-            _eventManager?.Publish(new PlayerStaminaChangeEvent {
-                NewValue = _currentStamina,
-                OldValue = oldStamina
-            });
+            float nextStamina = Mathf.Clamp(stamina, 0, maxStamina);
+            PlayerStaminaChangeEvent ev = new PlayerStaminaChangeEvent {
+                NewValue = nextStamina,
+                OldValue = _currentStamina
+            };
+            _eventManager?.Publish(ev);
+            if (ev.IsCancelled()) {
+                return;
+            }
+            _currentStamina = nextStamina;
             staminaBar?.SetValue(_currentStamina / 100);
         }
         
@@ -202,10 +205,20 @@ namespace BlueSnake.Player {
         public bool Cancelled { get; set; }
     }
     
-    public class PlayerStaminaChangeEvent : IEvent {
+    public class PlayerStaminaChangeEvent : ICancelableEvent {
         public float NewValue { get; set; }
 
         public float OldValue { get; set; }
+
+        private bool _cancelled;
+        
+        public bool IsCancelled() {
+            return _cancelled;
+        }
+
+        public void SetCancelled(bool value) {
+            _cancelled = value;
+        }
     }
 
     public class PlayerLandEvent : IEvent { }
