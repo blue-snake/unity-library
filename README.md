@@ -2,6 +2,11 @@
 
 ## Install package
 
+Add tweens manually:
+```bash
+https://github.com/jeffreylanters/unity-tweens
+```
+
 Coming Soon...
 
 ## Features

@@ -3,7 +3,6 @@
     "version": "0.0.1",
     "displayName": "Blue Snake Library",
     "dependencies": {
-        "nl.jeffreylanters.tweens": "https://github.com/jeffreylanters/unity-tweens",
         "com.unity.inputsystem": "1.7.0",
         "com.unity.nuget.newtonsoft-json": "3.2.1"
     }
