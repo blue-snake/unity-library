@@ -35,9 +35,6 @@ namespace BlueSnake.Camera {
         [SerializeField]
         private float fovLerpTime = 1f;
         
-        
-        
-        
         private float _sensitivityValue = 1;
         private float _currentRotationY;
         private float _currentRotationX;
@@ -49,7 +46,7 @@ namespace BlueSnake.Camera {
             _nextFov = camera.fieldOfView;
         }
 
-        private void Update() {
+        public void Update() {
             if (followTarget != null) {
                 cameraHolder.position = followTarget.position;
             }
