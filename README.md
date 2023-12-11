@@ -9,6 +9,7 @@
 - UI Animations
 - MenuManager
 - UI Buttons
+- OptionsManager
 
 ## Install package
 
