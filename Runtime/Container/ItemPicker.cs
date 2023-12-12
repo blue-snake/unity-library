@@ -36,33 +36,32 @@ namespace BlueSnake.Container {
             }
             pickUpInput.action.performed += _ => {
                 if (currentSelectedItem != null) {
-                    inventory.eventManager?.Publish(new InventoryPickUpHoverEndEvent {
-                        Inventory = inventory,
-                        PickableItem = currentSelectedItem
-                    });
                     inventory.PickUpItem(currentSelectedItem);
-                    currentSelectedItem = null;
                 }
             };
         }
 
         private void Update() {
-            if (currentSelectedItem != null) {
-                inventory.eventManager?.Publish(new InventoryPickUpHoverEndEvent {
-                    Inventory = inventory,
-                    PickableItem = currentSelectedItem
-                });
-                currentSelectedItem = null;
-            }
             if (Physics.Raycast(camera.transform.position, camera.transform.forward, out RaycastHit hit, range, itemLayer)) {
                 if (hit.transform.gameObject.TryGetComponent(out PickableItem pickableItem)) {
+                    if (currentSelectedItem != null) {
+                        return;
+                    }
                     inventory.eventManager?.Publish(new InventoryPickUpHoverEvent {
                         Inventory = inventory,
                         PickableItem = pickableItem
                     });
                     currentSelectedItem = pickableItem;
                 }
-            } 
+            } else {
+                if (currentSelectedItem != null) {
+                    inventory.eventManager?.Publish(new InventoryPickUpHoverEndEvent {
+                        Inventory = inventory,
+                        PickableItem = currentSelectedItem
+                    });
+                    currentSelectedItem = null;
+                }
+            }
         }
         
         
