@@ -30,12 +30,14 @@ namespace BlueSnake.Container {
         [HideInInspector]
         public PickableItem currentSelectedItem;
 
+        private bool _isTargeting;
+
         private void Awake() {
             if (playerCollisionLayer != -1 && itemCollisionLayer != -1) {
                 Physics.IgnoreLayerCollision(playerCollisionLayer, itemCollisionLayer);
             }
             pickUpInput.action.performed += _ => {
-                if (currentSelectedItem != null) {
+                if (currentSelectedItem != null && _isTargeting) {
                     inventory.PickUpItem(currentSelectedItem);
                 }
             };
@@ -44,7 +46,7 @@ namespace BlueSnake.Container {
         private void Update() {
             if (Physics.Raycast(camera.transform.position, camera.transform.forward, out RaycastHit hit, range, itemLayer)) {
                 if (hit.transform.gameObject.TryGetComponent(out PickableItem pickableItem)) {
-                    if (currentSelectedItem != null) {
+                    if (_isTargeting) {
                         return;
                     }
                     inventory.eventManager?.Publish(new InventoryPickUpHoverEvent {
@@ -52,14 +54,16 @@ namespace BlueSnake.Container {
                         PickableItem = pickableItem
                     });
                     currentSelectedItem = pickableItem;
+                    _isTargeting = true;
                 }
             } else {
-                if (currentSelectedItem != null) {
+                if (_isTargeting) {
                     inventory.eventManager?.Publish(new InventoryPickUpHoverEndEvent {
                         Inventory = inventory,
                         PickableItem = currentSelectedItem
                     });
                     currentSelectedItem = null;
+                    _isTargeting = false;
                 }
             }
         }
