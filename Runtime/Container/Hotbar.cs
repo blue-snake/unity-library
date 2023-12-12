@@ -127,6 +127,10 @@ namespace BlueSnake.Container {
             }
         }
 
+        public EquippedItem GetCurrentEquippedItem() {
+            return _currentEquippedItem;
+        }
+
         public bool HasEquippedItem() {
             return _currentEquippedItem != null;
         }
