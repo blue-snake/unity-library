@@ -36,11 +36,11 @@ namespace BlueSnake.Container {
             }
             pickUpInput.action.performed += _ => {
                 if (currentSelectedItem != null) {
-                    inventory.PickUpItem(currentSelectedItem);
                     inventory.eventManager?.Publish(new InventoryPickUpHoverEndEvent {
                         Inventory = inventory,
                         PickableItem = currentSelectedItem
                     });
+                    inventory.PickUpItem(currentSelectedItem);
                     currentSelectedItem = null;
                 }
             };
