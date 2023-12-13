@@ -1,5 +1,6 @@
 ﻿using System;
 using BlueSnake.Event;
+using BlueSnake.UI.Animation;
 using BlueSnake.UI.Bars;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -13,6 +14,9 @@ namespace BlueSnake.Player {
 
         [SerializeField]
         private FillAmountBar staminaBar;
+
+        [SerializeField]
+        private FadeUIAnimation fadeStaminaBarAnimation;
 
         [Header("Properties")]
         public float gravity = -25f;
@@ -48,6 +52,9 @@ namespace BlueSnake.Player {
         [SerializeField]
         private float staminaTime = 0.1f;
 
+        [SerializeField]
+        private float fadeDuration = 2f;
+
         [Header("Inputs")]
         [SerializeField]
         private InputActionReference moveInput;
@@ -67,6 +74,9 @@ namespace BlueSnake.Player {
         private bool _moved;
         private float _currentStaminaTime;
         private float _currentStamina;
+
+        private float _nextStaminaFadeTime;
+        private bool _isFaded;
         
         /** Event **/
         private EventManager _eventManager;
@@ -99,7 +109,9 @@ namespace BlueSnake.Player {
                     SetStamina(_currentStamina-staminaTakeAmount);
                 } else if (!isSprinting && _currentStaminaTime >= staminaTime) {
                     _currentStaminaTime = 0f;
-                    SetStamina(_currentStamina+staminaRegenAmount);
+                    if (_currentStamina < maxStamina) {
+                        SetStamina(_currentStamina+staminaRegenAmount);
+                    }
                 }
                 if (_currentStamina <= 0) {
                     moveSpeed = speed;
@@ -126,6 +138,19 @@ namespace BlueSnake.Player {
             controller.Move(_currentMoveVelocity * Time.deltaTime);
             
             HandleGravity();
+            
+            //Handle stamina fade
+            if (Time.time <= _nextStaminaFadeTime) {
+                if (!_isFaded) {
+                    _isFaded = true;
+                    fadeStaminaBarAnimation.StartAnimation();
+                }
+            } else {
+                if (_isFaded) {
+                    fadeStaminaBarAnimation.StopAnimation();
+                    _isFaded = false;
+                }
+            }
         }
 
         private void SetStamina(float stamina) {
@@ -140,6 +165,8 @@ namespace BlueSnake.Player {
             }
             _currentStamina = nextStamina;
             staminaBar?.SetValue(_currentStamina / 100);
+
+            _nextStaminaFadeTime = Time.time + fadeDuration;
         }
         
         
