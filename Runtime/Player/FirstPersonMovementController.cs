@@ -155,6 +155,10 @@ namespace BlueSnake.Player {
                 moveSpeed = moveEvent.Speed;
                 direction = moveEvent.Direction;
                 _moved = true;
+                
+                if (bobbingEnabled) {
+                    HandleHeadBobbing();
+                }
             } else if (horizontalInput == 0 && verticalInput == 0 && _moved) {
                 _moved = false;
                 _eventManager?.Publish(new PlayerMoveStopEvent());
@@ -181,10 +185,6 @@ namespace BlueSnake.Player {
             //Handle fov
             if (cameraController != null) {
                 cameraController.SetNextFov(isSprinting ? sprintFov : normalFov);
-            }
-
-            if (bobbingEnabled) {
-                HandleHeadBobbing();
             }
         }
 
