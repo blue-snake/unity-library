@@ -1,4 +1,5 @@
 ﻿using System;
+using BlueSnake.Camera;
 using BlueSnake.Event;
 using BlueSnake.UI.Animation;
 using BlueSnake.UI.Bars;
@@ -9,8 +10,8 @@ namespace BlueSnake.Player {
     public class FirstPersonMovementController : MonoBehaviour {
         [Header("Reference")]
         public Transform orientation;
-
         public CharacterController controller;
+        public CameraController cameraController;
 
         [SerializeField]
         private FillAmountBar staminaBar;
@@ -27,6 +28,12 @@ namespace BlueSnake.Player {
         public float jumpHeight = 2f;
 
         public float smoothTime = 0.3f;
+
+        [Header("FOV")]
+        [SerializeField]
+        private float normalFov = 60;
+        [SerializeField]
+        private float sprintFov = 70f;
 
         [Header("Ground")]
         public Transform groundCheckOrigin;
@@ -150,6 +157,11 @@ namespace BlueSnake.Player {
                     fadeStaminaBarAnimation.StopAnimation();
                     _isFaded = false;
                 }
+            }
+            
+            //Handle fov
+            if (cameraController != null) {
+                cameraController.SetNextFov(isSprinting ? sprintFov : normalFov);
             }
         }
 
