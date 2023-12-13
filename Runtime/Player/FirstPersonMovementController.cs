@@ -62,6 +62,20 @@ namespace BlueSnake.Player {
         [SerializeField]
         private float fadeDuration = 2f;
 
+        [Header("Head Bobbing")]
+        [SerializeField]
+        private bool bobbingEnabled = true;
+        [SerializeField]
+        private float bobbingSprintSpeed = 15f;
+        [SerializeField]
+        private float bobbingWalkSpeed = 14f;
+
+        [SerializeField]
+        private float bobbingWalkAmount = 0.01f;
+
+        [SerializeField]
+        private float bobbingSprintAmount = 0.025f;
+
         [Header("Inputs")]
         [SerializeField]
         private InputActionReference moveInput;
@@ -84,12 +98,17 @@ namespace BlueSnake.Player {
 
         private float _nextStaminaFadeTime;
         private bool _isFaded;
+        private float _bobbingTimer;
+        private float _bobbingDefaultY;
         
         /** Event **/
         private EventManager _eventManager;
 
         private void Start() {
             jumpInput.action.performed += OnPlayerJump;
+            if (bobbingEnabled) {
+                _bobbingDefaultY = cameraController.camera.transform.localPosition.y;
+            }
             _currentStamina = maxStamina;
         }
 
@@ -163,6 +182,10 @@ namespace BlueSnake.Player {
             if (cameraController != null) {
                 cameraController.SetNextFov(isSprinting ? sprintFov : normalFov);
             }
+
+            if (bobbingEnabled) {
+                HandleHeadBobbing();
+            }
         }
 
         private void SetStamina(float stamina) {
@@ -193,6 +216,17 @@ namespace BlueSnake.Player {
             _eventManager?.Publish(jumpEvent);
             if (jumpEvent.Cancelled) return;
             _jumpHeight = jumpEvent.Height;
+        }
+
+        private void HandleHeadBobbing() {
+            _bobbingTimer += Time.deltaTime * (isSprinting ? bobbingSprintSpeed : bobbingWalkSpeed);
+            Transform camera = cameraController.camera.transform;
+
+            camera.localPosition = new Vector3(
+                camera.localPosition.x,
+                _bobbingDefaultY + Mathf.Sin(_bobbingTimer) * (isSprinting ? bobbingSprintAmount : bobbingWalkAmount),
+                camera.localPosition.z
+            );
         }
 
         /// <summary>
