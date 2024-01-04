@@ -10,6 +10,10 @@
 - MenuManager
 - UI Buttons
 - OptionsManager
+- Inventory
+- FirstPerson Movement Controller
+- Camera Controller
+- UI Bars
 
 ## Install package
 
