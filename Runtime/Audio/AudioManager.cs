@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using BlueSnake.Utils;
 using UnityEngine;
@@ -12,10 +13,13 @@ namespace BlueSnake.Audio {
         public List<AudioGroup> groups;
         public readonly Dictionary<string, AudioContainer> Containers = new();
 
-        [Space] [Header("Loading")] [SerializeField]
+        [Space]
+        [Header("Loading")]
+        [SerializeField]
         private bool loadFromResources;
 
-        [SerializeField] private string resourcePath;
+        [SerializeField]
+        private string resourcePath;
 
         public override void Awake() {
             if (Instance != null) {
@@ -87,6 +91,19 @@ namespace BlueSnake.Audio {
             return Play(name, transform);
         }
 
+        public void PlayDelayed(string name, float delay) {
+            PlayDelayed(name, delay, transform);
+        }
+
+        public void PlayDelayed(string name, float delay, Transform transform) {
+            StartCoroutine(PlayDelayedCoroutine(name, delay, transform));
+        }
+
+        public IEnumerator PlayDelayedCoroutine(string name, float delay, Transform transform) {
+            yield return new WaitForSeconds(delay);
+            Play(name, transform);
+        }
+
         public AudioContainer Play(string name, Transform transform) {
             string id = name + transform.GetInstanceID();
             if (Containers.TryGetValue(id, out AudioContainer container)) {
@@ -102,8 +119,8 @@ namespace BlueSnake.Audio {
                     }
                 }
 
-                if (audioEntry.delay > 0) {
-                    if (Time.time < container.lastPlayedTimestamp + audioEntry.delay) {
+                if (audioEntry.cooldown > 0) {
+                    if (Time.time < container.lastPlayedTimestamp + audioEntry.cooldown) {
                         return container;
                     }
                 }
@@ -171,13 +188,25 @@ namespace BlueSnake.Audio {
     public class AudioEntry {
         public string name;
         public AudioClip[] clips;
-        [Range(0f, 1f)] public float volume = 1f;
-        [Range(-2f, 2f)] public float pitch = 1f;
+
+        [Range(0f, 1f)]
+        public float volume = 1f;
+
+        [Range(-2f, 2f)]
+        public float pitch = 1f;
+
         public bool loop;
-        [Header("3D")] public bool enabled;
+
+        [Header("3D")]
+        public bool enabled;
+
         public float minDistance = 0.1f;
         public float maxDistance = 15f;
-        [Header("Timed")] public float distanceBetween;
-        public float delay;
+
+
+        [Header("Time")]
+        public float distanceBetween;
+
+        public float cooldown;
     }
 }
