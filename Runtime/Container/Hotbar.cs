@@ -40,24 +40,22 @@ namespace BlueSnake.Container {
 
             if (primaryUse != null) {
                 primaryUse.action.performed += _ => {
-                    if (HasEquippedItem()) {
-                        _currentEquippedItem.OnPrimaryUse(this);
-                        inventory.eventManager?.Publish(new HotbarPrimaryUseEvent {
-                            Hotbar = this,
-                            EquippedItem = _currentEquippedItem
-                        });
-                    }
+                    if (!HasEquippedItem()) return;
+                    _currentEquippedItem.OnPrimaryUse(this);
+                    inventory.eventManager?.Publish(new HotbarPrimaryUseEvent {
+                        Hotbar = this,
+                        EquippedItem = _currentEquippedItem
+                    });
                 };
             }
             if (secondaryUse != null) {
                 secondaryUse.action.performed += _ => {
-                    if (HasEquippedItem()) {
-                        _currentEquippedItem.OnSecondaryUse(this);
-                        inventory.eventManager?.Publish(new HotbarSecondaryUseEvent {
-                            Hotbar = this,
-                            EquippedItem = _currentEquippedItem
-                        });
-                    }
+                    if (!HasEquippedItem()) return;
+                    _currentEquippedItem.OnSecondaryUse(this);
+                    inventory.eventManager?.Publish(new HotbarSecondaryUseEvent {
+                        Hotbar = this,
+                        EquippedItem = _currentEquippedItem
+                    });
                 };
             }
             inventory.eventManager?.Subscribe<InventoryRemoveItemEvent>(ev => {
@@ -80,10 +78,9 @@ namespace BlueSnake.Container {
                 }
             }
 
-            if (secondaryUse != null) {
-                if (secondaryUse.action.IsPressed()) {
-                    _currentEquippedItem.OnSecondaryHoldUse(this);
-                }
+            if (secondaryUse == null) return;
+            if (secondaryUse.action.IsPressed()) {
+                _currentEquippedItem.OnSecondaryHoldUse(this);
             }
         }
 
@@ -114,17 +111,16 @@ namespace BlueSnake.Container {
         /// Unequip current equipped item
         /// </summary>
         public void UnEquip() {
-            if (HasEquippedItem()) {
-                foreach (Transform child in itemContainer) {
-                    Destroy(child.gameObject);
-                }
-                _currentEquippedItem.OnUnEquip(this);
-                inventory.eventManager?.Publish(new HotbarUnEquipEvent {
-                    Hotbar = this,
-                    EquippedItem = _currentEquippedItem
-                });
-                _currentEquippedItem = null;
+            if (!HasEquippedItem()) return;
+            foreach (Transform child in itemContainer) {
+                Destroy(child.gameObject);
             }
+            _currentEquippedItem.OnUnEquip(this);
+            inventory.eventManager?.Publish(new HotbarUnEquipEvent {
+                Hotbar = this,
+                EquippedItem = _currentEquippedItem
+            });
+            _currentEquippedItem = null;
         }
 
         public EquippedItem GetCurrentEquippedItem() {

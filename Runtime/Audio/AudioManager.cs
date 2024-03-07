@@ -11,7 +11,7 @@ namespace BlueSnake.Audio {
     public class AudioManager : Singleton<AudioManager> {
         public AudioMixer mixer;
         public List<AudioGroup> groups;
-        public readonly Dictionary<string, AudioContainer> Containers = new();
+        public readonly Dictionary<string, AudioContainer> containers = new();
 
         [Space]
         [Header("Loading")]
@@ -59,7 +59,7 @@ namespace BlueSnake.Audio {
                 Destroy(component);
             }
 
-            Containers.Clear();
+            containers.Clear();
         }
 
         public void Stop(string name) {
@@ -72,19 +72,14 @@ namespace BlueSnake.Audio {
 
         public AudioContainer Get(string name, Transform transform) {
             string id = name + transform.GetInstanceID();
-            if (Containers.TryGetValue(id, out AudioContainer container)) {
-                return container;
-            }
-
-            return null;
+            return containers.GetValueOrDefault(id);
         }
 
         public void Stop(string name, Transform transform) {
             string id = name + transform.GetInstanceID();
-            if (Containers.TryGetValue(id, out AudioContainer container)) {
-                AudioSource source = container.source;
-                source.Stop();
-            }
+            if (!containers.TryGetValue(id, out AudioContainer container)) return;
+            AudioSource source = container.source;
+            source.Stop();
         }
 
         public AudioContainer Play(string name) {
@@ -106,7 +101,7 @@ namespace BlueSnake.Audio {
 
         public AudioContainer Play(string name, Transform transform) {
             string id = name + transform.GetInstanceID();
-            if (Containers.TryGetValue(id, out AudioContainer container)) {
+            if (containers.TryGetValue(id, out AudioContainer container)) {
                 AudioEntry audioEntry = container.entry;
                 if (audioEntry.distanceBetween > 0) {
                     Vector3 position = transform.position;
@@ -138,32 +133,32 @@ namespace BlueSnake.Audio {
 
             foreach (AudioGroup group in groups) {
                 foreach (AudioEntry audio in group.entries) {
-                    if (name.Equals(audio.name)) {
-                        AudioSource source = transform.gameObject.AddComponent<AudioSource>();
-                        if (group.mixer != null) {
-                            source.outputAudioMixerGroup = group.mixer;
-                        }
-
-                        source.clip = audio.clips[0];
-                        source.volume = audio.volume;
-                        source.pitch = audio.pitch;
-                        source.loop = audio.loop;
-                        source.rolloffMode = AudioRolloffMode.Linear;
-
-                        if (audio.enabled) {
-                            source.spatialBlend = 1f;
-                            source.spatialize = audio.enabled;
-                            source.minDistance = audio.minDistance;
-                            source.maxDistance = audio.maxDistance;
-                        }
-
-                        AudioContainer cont = new AudioContainer(audio, source);
-                        cont.lastPlayedPosition = transform.position;
-                        cont.lastPlayedTimestamp = Time.time;
-                        Containers[id] = cont;
-                        source.Play();
-                        return Containers[id];
+                    if (!name.Equals(audio.name)) continue;
+                    AudioSource source = transform.gameObject.AddComponent<AudioSource>();
+                    if (group.mixer != null) {
+                        source.outputAudioMixerGroup = group.mixer;
                     }
+
+                    source.clip = audio.clips[0];
+                    source.volume = audio.volume;
+                    source.pitch = audio.pitch;
+                    source.loop = audio.loop;
+                    source.rolloffMode = AudioRolloffMode.Linear;
+
+                    if (audio.enabled) {
+                        source.spatialBlend = 1f;
+                        source.spatialize = audio.enabled;
+                        source.minDistance = audio.minDistance;
+                        source.maxDistance = audio.maxDistance;
+                    }
+
+                    AudioContainer cont = new AudioContainer(audio, source) {
+                        lastPlayedPosition = transform.position,
+                        lastPlayedTimestamp = Time.time
+                    };
+                    containers[id] = cont;
+                    source.Play();
+                    return containers[id];
                 }
             }
 
