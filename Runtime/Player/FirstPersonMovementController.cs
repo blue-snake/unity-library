@@ -1,5 +1,4 @@
-﻿using System;
-using BlueSnake.Camera;
+﻿using BlueSnake.Camera;
 using BlueSnake.Event;
 using BlueSnake.UI.Animation;
 using BlueSnake.UI.Bars;

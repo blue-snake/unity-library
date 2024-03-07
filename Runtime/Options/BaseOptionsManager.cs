@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using BlueSnake.File;
+﻿using BlueSnake.File;
 using UnityEngine;
 
 namespace BlueSnake.Options {
