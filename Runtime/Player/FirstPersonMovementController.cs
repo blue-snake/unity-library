@@ -104,7 +104,9 @@ namespace BlueSnake.Player {
         private EventManager _eventManager;
 
         private void Start() {
-            jumpInput.action.performed += OnPlayerJump;
+            if (jumpInput != null) {
+                jumpInput.action.performed += OnPlayerJump;
+            }
             if (bobbingEnabled) {
                 _bobbingDefaultY = cameraController.camera.transform.localPosition.y;
             }
@@ -169,7 +171,7 @@ namespace BlueSnake.Player {
             HandleGravity();
             
             //Handle stamina fade
-            if (Time.time <= _nextStaminaFadeTime) {
+            if (Time.time <= _nextStaminaFadeTime && staminaEnabled) {
                 if (!_isFaded) {
                     _isFaded = true;
                     fadeStaminaBarAnimation.StartAnimation();
