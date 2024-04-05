@@ -11,17 +11,7 @@ namespace BlueSnake.Container {
 
         [Header("Properties")]
         public int maxSize = 10;
-
-        public EventManager eventManager;
-
-        /// <summary>
-        /// Initialize event bus.
-        /// It is optional. Some functionalities may not work
-        /// </summary>
-        /// <param name="eventManager"></param>
-        public void InitializeEventManager(EventManager eventManager) {
-            this.eventManager = eventManager;
-        }
+        
 
         /// <summary>
         /// Pick up item
@@ -33,7 +23,7 @@ namespace BlueSnake.Container {
                 Inventory = this,
                 PickableItem = pickable
             };
-            eventManager?.Publish(ev);
+            EventManager.GetInstance().Publish(ev);
             if (ev.IsCancelled()) {
                 return false;
             }
@@ -85,7 +75,7 @@ namespace BlueSnake.Container {
                 int next = current.amount + stack.amount;
                 if (next <= current.type.maxStackSize) {
                     current.amount = next;
-                    eventManager?.Publish(new InventoryUpdateItemEvent() {
+                    EventManager.GetInstance().Publish(new InventoryUpdateItemEvent() {
                         Inventory = this,
                         ItemStack = current
                     });
@@ -95,7 +85,7 @@ namespace BlueSnake.Container {
                 current.amount = current.type.maxStackSize;
                 stack.amount -= difference;
                     
-                eventManager?.Publish(new InventoryUpdateItemEvent() {
+                EventManager.GetInstance().Publish(new InventoryUpdateItemEvent() {
                     Inventory = this,
                     ItemStack = current
                 });
@@ -106,7 +96,7 @@ namespace BlueSnake.Container {
 
             if (!IsInventoryFull()) {
                 items.Add(stack);
-                eventManager?.Publish(new InventoryAddItemEvent {
+                EventManager.GetInstance().Publish(new InventoryAddItemEvent {
                     Inventory = this,
                     ItemStack = stack
                 });
@@ -159,7 +149,7 @@ namespace BlueSnake.Container {
                 int next = current.amount - remaining;
                 if (next > 0) {
                     current.amount = next;
-                    eventManager?.Publish(new InventoryUpdateItemEvent() {
+                    EventManager.GetInstance().Publish(new InventoryUpdateItemEvent() {
                         Inventory = this,
                         ItemStack = current
                     });
@@ -182,7 +172,7 @@ namespace BlueSnake.Container {
             
             ItemStack current = items[index];
             items.RemoveAt(index);
-            eventManager?.Publish(new InventoryRemoveItemEvent() {
+            EventManager.GetInstance().Publish(new InventoryRemoveItemEvent() {
                 Inventory = this,
                 Index = index,
                 ItemStack = current

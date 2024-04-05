@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using BlueSnake.Utils;
 
 namespace BlueSnake.Event {
-    public class EventManager {
+    public class EventManager : StandaloneSingleton<EventManager> {
         private readonly Dictionary<Type, List<EventSubscriber>> subscribers = new();
 
         public void Subscribe<T>(Type type, EventSubscriber<T> subscriber) where T : IEvent {

@@ -42,7 +42,7 @@ namespace BlueSnake.Container {
                 primaryUse.action.performed += _ => {
                     if (!HasEquippedItem()) return;
                     _currentEquippedItem.OnPrimaryUse(this);
-                    inventory.eventManager?.Publish(new HotbarPrimaryUseEvent {
+                    EventManager.GetInstance().Publish(new HotbarPrimaryUseEvent {
                         Hotbar = this,
                         EquippedItem = _currentEquippedItem
                     });
@@ -52,13 +52,13 @@ namespace BlueSnake.Container {
                 secondaryUse.action.performed += _ => {
                     if (!HasEquippedItem()) return;
                     _currentEquippedItem.OnSecondaryUse(this);
-                    inventory.eventManager?.Publish(new HotbarSecondaryUseEvent {
+                    EventManager.GetInstance().Publish(new HotbarSecondaryUseEvent {
                         Hotbar = this,
                         EquippedItem = _currentEquippedItem
                     });
                 };
             }
-            inventory.eventManager?.Subscribe<InventoryRemoveItemEvent>(ev => {
+            EventManager.GetInstance().Subscribe<InventoryRemoveItemEvent>(ev => {
                 if (!HasEquippedItem()) {
                     return;
                 }
@@ -101,7 +101,7 @@ namespace BlueSnake.Container {
             _currentEquippedItem = Instantiate(item.type.equippedPrefab, itemContainer);
             _currentEquippedItem.inventoryIndex = index;
             _currentEquippedItem.OnEquip(this);
-            inventory.eventManager?.Publish(new HotbarEquipEvent {
+            EventManager.GetInstance().Publish(new HotbarEquipEvent {
                 Hotbar = this,
                 EquippedItem = _currentEquippedItem
             });
@@ -116,7 +116,7 @@ namespace BlueSnake.Container {
                 Destroy(child.gameObject);
             }
             _currentEquippedItem.OnUnEquip(this);
-            inventory.eventManager?.Publish(new HotbarUnEquipEvent {
+            EventManager.GetInstance().Publish(new HotbarUnEquipEvent {
                 Hotbar = this,
                 EquippedItem = _currentEquippedItem
             });

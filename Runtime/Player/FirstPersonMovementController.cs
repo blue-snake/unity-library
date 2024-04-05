@@ -93,8 +93,6 @@ namespace BlueSnake.Player {
         private float _bobbingTimer;
         private float _bobbingDefaultY;
         
-        /** Event **/
-        private EventManager _eventManager;
 
         private void Start() {
             if (jumpInput != null) {
@@ -105,10 +103,7 @@ namespace BlueSnake.Player {
             }
             _currentStamina = maxStamina;
         }
-
-        public void InitializeEventManager(EventManager eventManager) {
-            _eventManager = eventManager;
-        }
+        
 
         public virtual void Update() {
             isSprinting = sprintInput.action.IsPressed();
@@ -144,7 +139,7 @@ namespace BlueSnake.Player {
                     Cancelled = false,
                     Direction = direction
                 };
-                _eventManager?.Publish(moveEvent);
+                EventManager.GetInstance().Publish(moveEvent);
                 if (moveEvent.Cancelled) return;
                 moveSpeed = moveEvent.Speed;
                 direction = moveEvent.Direction;
@@ -155,7 +150,7 @@ namespace BlueSnake.Player {
                 }
             } else if (horizontalInput == 0 && verticalInput == 0 && _moved) {
                 _moved = false;
-                _eventManager?.Publish(new PlayerMoveStopEvent());
+                EventManager.GetInstance().Publish(new PlayerMoveStopEvent());
             }
             
             _currentMoveVelocity = Vector3.SmoothDamp(_currentMoveVelocity, direction * (moveSpeed * 2f), ref _currentMoveDampVelocity, smoothTime);
@@ -188,7 +183,7 @@ namespace BlueSnake.Player {
                 NewValue = nextStamina,
                 OldValue = _currentStamina
             };
-            _eventManager?.Publish(ev);
+            EventManager.GetInstance().Publish(ev);
             if (ev.IsCancelled()) {
                 return;
             }
@@ -205,7 +200,7 @@ namespace BlueSnake.Player {
             PlayerJumpEvent jumpEvent = new PlayerJumpEvent {
                 Height = jumpHeight
             };
-            _eventManager?.Publish(jumpEvent);
+            EventManager.GetInstance().Publish(jumpEvent);
             if (jumpEvent.Cancelled) return;
             _jumpHeight = jumpEvent.Height;
         }
@@ -230,7 +225,7 @@ namespace BlueSnake.Player {
             } else {
                 if (!_hasLanded) {
                     _hasLanded = true;
-                    _eventManager?.Publish(new PlayerLandEvent());
+                    EventManager.GetInstance().Publish(new PlayerLandEvent());
                 }
             }
         }

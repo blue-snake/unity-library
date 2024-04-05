@@ -1,5 +1,6 @@
 ﻿using System;
 using BlueSnake.Container.Event;
+using BlueSnake.Event;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -49,7 +50,7 @@ namespace BlueSnake.Container {
                     if (_isTargeting) {
                         return;
                     }
-                    inventory.eventManager?.Publish(new InventoryPickUpHoverEvent {
+                    EventManager.GetInstance().Publish(new InventoryPickUpHoverEvent {
                         Inventory = inventory,
                         PickableItem = pickableItem
                     });
@@ -58,7 +59,7 @@ namespace BlueSnake.Container {
                 }
             } else {
                 if (_isTargeting) {
-                    inventory.eventManager?.Publish(new InventoryPickUpHoverEndEvent {
+                    EventManager.GetInstance().Publish(new InventoryPickUpHoverEndEvent {
                         Inventory = inventory,
                         PickableItem = currentSelectedItem
                     });
