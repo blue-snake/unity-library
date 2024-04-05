@@ -1,7 +1,5 @@
 ﻿using BlueSnake.Camera;
 using BlueSnake.Event;
-using BlueSnake.UI.Animation;
-using BlueSnake.UI.Bars;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,9 +9,7 @@ namespace BlueSnake.Player {
         public Transform orientation;
         public CharacterController controller;
         public CameraController cameraController;
-
-        [SerializeField]
-        private FillAmountBar staminaBar;
+        
 
         [Header("Properties")]
         public float gravity = -25f;
@@ -139,8 +135,8 @@ namespace BlueSnake.Player {
                 }
                 if (_currentStamina <= 0) {
                     moveSpeed = speed;
+                    isSprinting = false;
                 }
-                
             }
             if (horizontalInput != 0 || verticalInput != 0) {
                 PlayerMoveEvent moveEvent = new PlayerMoveEvent {
@@ -197,8 +193,6 @@ namespace BlueSnake.Player {
                 return;
             }
             _currentStamina = nextStamina;
-            staminaBar?.SetValue(_currentStamina / 100);
-
             _nextStaminaFadeTime = Time.time + fadeDuration;
         }
         
