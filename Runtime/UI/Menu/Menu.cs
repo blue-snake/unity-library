@@ -1,25 +1,23 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using BlueSnake.UI.Animation;
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace BlueSnake.UI.Menu {
     public class Menu : MonoBehaviour {
-
         [Header("Properties")]
         public string id;
-        
+
         [Header("Animation")]
         [SerializeField]
-        private new UIAnimation animation;
-        [SerializeField]
-        private bool animationForceStop;
+        private UIAnimator animator;
         
         [Header("Fallback")]
         [Tooltip("Not needed when using animation")]
         [SerializeField]
         private GameObject content;
-        
+
         [Header("Children")]
         public List<Menu> children;
 
@@ -29,40 +27,62 @@ namespace BlueSnake.UI.Menu {
 
         [SerializeField]
         private UnityEvent onClose;
-        
+
         [HideInInspector]
         public Menu parent;
-        
+
 
         private void Awake() {
             MenuManager.GetInstance().Register(this);
         }
 
         public void Open() {
-            if (animation != null) {
-                animation.StartAnimation(() => {
-                    onOpen?.Invoke();
-                });
+            if (animator != null) {
+                animator.PlayTransition("Open");
             } else {
-                content.SetActive(true);
-                onOpen?.Invoke();
+                OpenFallback();
             }
         }
 
-        public void Close() {
-            if (animation != null) {
-                animation.StopAnimation(animationForceStop, () => {
-                    onClose?.Invoke();
-                });
+        public IEnumerator OpenAwaitable() {
+            if (animator != null) {
+                yield return animator.RunTransition("Open");
             } else {
-                content.SetActive(false);
-                onClose?.Invoke();
+                OpenFallback();
             }
         }
+        
+        public void Close() {
+            if (animator != null) {
+                animator.PlayTransition("Closed");
+            } else {
+                CloseFallback();
+            }
+        }
+
+        public IEnumerator CloseAwaitable() {
+            if (animator != null) {
+                yield return animator.RunTransition("Closed");
+            } else {
+                CloseFallback();
+            }
+        }
+
+        private void OpenFallback() {
+            content.SetActive(true);
+            onOpen?.Invoke();
+        }
+
+        private void CloseFallback() {
+            content.SetActive(false);
+            onClose?.Invoke();
+        }
+        
+
+  
 
         public bool HasParent() {
             return parent != null;
         }
-
     }
 }

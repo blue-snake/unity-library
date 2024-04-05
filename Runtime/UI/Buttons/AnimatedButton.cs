@@ -5,14 +5,14 @@ namespace BlueSnake.UI.Buttons {
     public class AnimatedButton : Button {
 
         [SerializeField]
-        private new UIAnimation animation;
+        private UIAnimator animator;
 
-        public override void OnHoverEnter() {
-            animation.StartAnimation();
+        public override void OnHoverEnter() { 
+            animator.PlayTransition("Hover Enter");
         }
 
         public override void OnHoverExit() {
-            animation.StopAnimation();
+            animator.PlayTransition("Hover Exit");
         }
     }
 }

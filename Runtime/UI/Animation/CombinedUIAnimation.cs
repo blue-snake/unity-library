@@ -1,53 +1,43 @@
-﻿using System.Collections;
-using System.Threading;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace BlueSnake.UI.Animation {
+    [Serializable]
     public class CombinedUIAnimation : UIAnimation {
-
-        [Header("Reference")]
         [SerializeField]
-        private UIAnimation[] animations;
-        
-        public override void StartAnimation(UIAnimationCallback callback) {
-            if (callback == null) {
-                foreach (UIAnimation animation in animations) {
-                    animation.StartAnimation();
+        private CombinedUIAnimationPlayType playType;
+
+        [SerializeField, SerializeReference, SubclassSelector, ReorderableList]
+        private List<UIAnimation> animations;
+
+        public override IEnumerator PlayAnimation() {
+            switch (playType) {
+                case CombinedUIAnimationPlayType.Parallel: {
+                    foreach (UIAnimation animation in animations) {
+                        animation.PlayAnimation().MoveNext();
+                    }
+                    break;
                 }
-                return;
+                case CombinedUIAnimationPlayType.Sequence: {
+                    foreach (UIAnimation animation in animations) {
+                        yield return animation.PlayAnimation();
+                    }
+                    break;
+                }
             }
-            CountdownEvent latch = new CountdownEvent(animations.Length);
-            StartCoroutine(InvokeCallback(latch, callback));
-            foreach (UIAnimation animation in animations) {
-                animation.StartAnimation(() => {
-                    latch.Signal();
-                });
-            } 
         }
 
-        private IEnumerator InvokeCallback(CountdownEvent latch, UIAnimationCallback callback) {
-            while (latch.CurrentCount != 0) {
-                yield return null;
+        public override void CancelAnimation() {
+            foreach(UIAnimation animation in animations) {
+                animation.CancelAnimation();
             }
-            callback.Invoke();
         }
+    }
 
-        public override void StopAnimation(bool force, UIAnimationCallback callback) {
-            if (callback == null) {
-                foreach(UIAnimation animation in animations)
-                {
-                    animation.StopAnimation(force);
-                }
-                return;
-            }
-            CountdownEvent latch = new CountdownEvent(animations.Length);
-            StartCoroutine(InvokeCallback(latch, callback));
-            foreach (UIAnimation animation in animations) {
-                animation.StopAnimation(force, () => {
-                    latch.Signal();
-                });
-            }
-        }
-        
+    public enum CombinedUIAnimationPlayType {
+        Parallel,
+        Sequence
     }
 }

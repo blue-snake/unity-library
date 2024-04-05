@@ -55,6 +55,7 @@ namespace BlueSnake.Audio {
 
         public void ClearAll() {
             foreach (AudioSource component in transform.GetComponents<AudioSource>()) {
+                if(component == null) continue;
                 component.Stop();
                 Destroy(component);
             }

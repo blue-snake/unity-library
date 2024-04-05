@@ -3,7 +3,9 @@
     "rootNamespace": "BlueSnake",
     "references": [
         "Unity.InputSystem",
-        "nl.jeffreylanters.tweens"
+        "nl.jeffreylanters.tweens",
+        "MackySoft.SerializeReferenceExtensions",
+        "Toolbox"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -1,68 +1,47 @@
 ﻿using System;
+using System.Collections;
 using Tweens;
 using UnityEngine;
 
 namespace BlueSnake.UI.Animation {
+    [Serializable]
     public class ScaleUIAnimation : UIAnimation {
-        
-        [Header("Reference")]
-        [SerializeField]
-        private Transform target;
 
-        [Header("Properties")]
-        [Header("Scale")]
+        [SerializeField]
+        private GameObject target;
+
+        [SerializeField]
+        private Vector3 scaleAmount = new(1.1f, 1.1f, 1.1f);
+        
         [SerializeField]
         private float scaleDelay;
-        [SerializeField]
-        private float scaleDuration = 1f;
-        [SerializeField]
-        private Vector3 scaleAmount = new(1.2f, 1.2f, 1.2f);
 
-        [Header("Scale Back")]
         [SerializeField]
-        private float scaleBackDelay;
-        [SerializeField]
-        private float scaleBackDuration = 1f;
+        private float scaleDuration = 0.2f;
+
+        private TweenInstance _instance;
         
-        private TweenInstance _tweenInstance;
-        private Vector3 _initialScaleAmount;
-
-        private void Awake() {
-            _initialScaleAmount = target.localScale;
-        }
-
-        public override void StartAnimation(UIAnimationCallback callback) {
-            _tweenInstance?.Cancel();
-
+        public override IEnumerator PlayAnimation() {
+            CancelAnimation();
+            bool running = true;
             LocalScaleTween tween = new LocalScaleTween {
-                from = target.localScale,
+                from = target.transform.localScale,
                 to = scaleAmount,
                 delay = scaleDelay,
                 duration = scaleDuration,
-                onEnd = _ => {
-                    callback?.Invoke();
+                onFinally = _ => {
+                    running = false;
                 }
             };
-            _tweenInstance = target.gameObject.AddTween(tween);
-        }
-
-        public override void StopAnimation(bool force, UIAnimationCallback callback) {
-            _tweenInstance?.Cancel();
-            if (force) {
-                target.localScale = _initialScaleAmount;
-            } else {
-                LocalScaleTween tween = new LocalScaleTween {
-                    from = target.localScale,
-                    to = _initialScaleAmount,
-                    delay = scaleBackDelay,
-                    duration = scaleBackDuration,
-                    onEnd = _ => {
-                        callback?.Invoke();
-                    }
-                };
-                _tweenInstance = target.gameObject.AddTween(tween);
+            _instance = target.AddTween(tween);
+            while (running) {
+                yield return null;
             }
-
+            _instance = null;
+        }
+        
+        public override void CancelAnimation() {
+            _instance?.Cancel();
         }
     }
 }

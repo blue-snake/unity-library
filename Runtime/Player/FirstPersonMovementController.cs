@@ -15,9 +15,6 @@ namespace BlueSnake.Player {
         [SerializeField]
         private FillAmountBar staminaBar;
 
-        [SerializeField]
-        private FadeUIAnimation fadeStaminaBarAnimation;
-
         [Header("Properties")]
         public float gravity = -25f;
 
@@ -174,11 +171,11 @@ namespace BlueSnake.Player {
             if (Time.time <= _nextStaminaFadeTime && staminaEnabled) {
                 if (!_isFaded) {
                     _isFaded = true;
-                    fadeStaminaBarAnimation.StartAnimation();
+                   // fadeStaminaBarAnimation.StartAnimation();
                 }
             } else {
                 if (_isFaded) {
-                    fadeStaminaBarAnimation.StopAnimation();
+                   // fadeStaminaBarAnimation.StopAnimation();
                     _isFaded = false;
                 }
             }
