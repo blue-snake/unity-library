@@ -21,6 +21,11 @@ namespace BlueSnake.Container
         public float smooth = 10f;
         public float smoothRot = 12f;
 
+        [Header("Breathing")]
+        public float breathingAmount = 2f;
+        public float breathingLerpSpeed = 14f;
+        public float breathingScale = 600f;
+
         [Header("Inputs")]
         [SerializeField]
         private InputActionReference lookInput;
@@ -28,10 +33,14 @@ namespace BlueSnake.Container
         private Vector3 _swayEulerRot; 
         private Vector3 _swayPos;
 
+        private float _breathingTime;
+        private Vector3 _breathingPos;
+
         private void Update() {
             Sway();
             SwayRotation();
             CompositePositionRotation();
+            CompositeBreathing();
         }
         
         void Sway(){
@@ -52,6 +61,15 @@ namespace BlueSnake.Container
         private void CompositePositionRotation(){
             transform.localPosition = Vector3.Lerp(transform.localPosition, _swayPos, Time.deltaTime * smooth);
             transform.localRotation = Quaternion.Slerp(transform.localRotation, Quaternion.Euler(_swayEulerRot), Time.deltaTime * smoothRot);
+        }
+
+        private void CompositeBreathing() {
+            Vector3 targetPos = new Vector3(Mathf.Sin(_breathingTime),
+                breathingAmount * Mathf.Sin(breathingAmount * _breathingTime + Mathf.PI)) / breathingScale;
+            _breathingPos = Vector3.Lerp(_breathingPos, targetPos, Time.smoothDeltaTime * breathingLerpSpeed);
+            _breathingTime += Time.deltaTime;
+            if (_breathingTime > 6.3f) _breathingTime = 0f;
+            transform.localPosition = _breathingPos;
         }
     }
 }
