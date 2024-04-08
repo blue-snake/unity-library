@@ -7,9 +7,6 @@ namespace BlueSnake.Camera {
 
 
         [Header("Reference")]
-        [SerializeField]
-        private Transform cameraHolder;
-        
         public new UnityEngine.Camera camera;
         
         [SerializeField]
@@ -24,54 +21,80 @@ namespace BlueSnake.Camera {
 
         [Header("Properties")]
         [SerializeField]
-        private float sensitivityMultiplier = 2f;
+        private Vector2 clampInDegress = new(360, 180);
 
         [SerializeField]
-        private float minRotationX = -80f;
+        private Vector2 sensitivity = new(0.3f, 0.3f);
 
         [SerializeField]
-        private float maxRotationX = 80f;
+        private Vector2 smoothing = new(10, 10);
+        
+        [SerializeField]
+        private Vector2 targetDirection;
 
         [SerializeField]
         private float fovLerpTime = 1f;
         
-        private float _sensitivityValue = 1;
-        private float _currentRotationY;
-        private float _currentRotationX;
+        
+        private Vector2 _mouseAbsolute;
+        private Vector2 _smoothMouse;
 
         private float _nextFov;
+
+        private Transform _transform;
         
 
         private void Awake() {
+            _transform = transform;
             _nextFov = camera.fieldOfView;
+        }
+
+        private void Start() {
+            targetDirection = transform.rotation.eulerAngles;
         }
 
         public void Update() {
             if (followTarget != null) {
-                cameraHolder.position = followTarget.position;
+                _transform.position = followTarget.position;
             }
+            Quaternion targetOrientation = Quaternion.Euler(targetDirection);
+            
+            Vector2 mouseDelta = lookInput.action.ReadValue<Vector2>();
+            mouseDelta = Vector2.Scale(mouseDelta, new Vector2(sensitivity.x * smoothing.x, sensitivity.y * smoothing.y));
 
-            float sens = _sensitivityValue * sensitivityMultiplier;
-            Vector2 input = lookInput.action.ReadValue<Vector2>() * sens;
-            _currentRotationY += input.x;
-            _currentRotationX -= input.y;
-            _currentRotationX = Mathf.Clamp(_currentRotationX, minRotationX, maxRotationX);
-            
-            cameraHolder.rotation = Quaternion.Euler(_currentRotationX, _currentRotationY, 0);
-            
-            Quaternion euler = Quaternion.Euler(0, _currentRotationY, 0);
-            foreach (Transform rotate in transformsToRotate) {
-                rotate.rotation = euler;
+            _smoothMouse.x = Mathf.Lerp(_smoothMouse.x, mouseDelta.x, 1f / smoothing.x);
+            _smoothMouse.y = Mathf.Lerp(_smoothMouse.y, mouseDelta.y, 1f / smoothing.y);
+
+            _mouseAbsolute += _smoothMouse;
+
+            if (clampInDegress.x < 360) {
+                _mouseAbsolute.x = Mathf.Clamp(_mouseAbsolute.x, -clampInDegress.x * 0.5f, clampInDegress.x * 0.5f);
             }
+            Quaternion xRotation = Quaternion.AngleAxis(-_mouseAbsolute.y, targetOrientation * Vector3.right);
+            _transform.localRotation = xRotation;
+
+            if (clampInDegress.y < 360) {
+                _mouseAbsolute.y = Mathf.Clamp(_mouseAbsolute.y, -clampInDegress.y * 0.5f, clampInDegress.y * 0.5f);
+            }
+            
+            Quaternion yRotation =
+                Quaternion.AngleAxis(_mouseAbsolute.x, transform.InverseTransformDirection(Vector3.up));
+            
+            foreach (Transform to in transformsToRotate) {
+                to.localRotation = xRotation;
+                to.localRotation *= yRotation;
+            }
+            
+            _transform.localRotation *= yRotation;
+            _transform.rotation *= targetOrientation;
+    
+           
+            
             camera.fieldOfView = Mathf.Lerp(camera.fieldOfView, _nextFov, Time.deltaTime * fovLerpTime);
         }
 
         public void SetNextFov(float fov) {
             _nextFov = fov;
-        }
-        
-        public void SetSensitivity(float sens) {
-            _sensitivityValue = sens;
         }
       
     }
