@@ -3,30 +3,18 @@ using BlueSnake.Container;
 using BlueSnake.Utils;
 using UnityEngine;
 
-public class ItemRegistry : Singleton<ItemRegistry> {
-    
-    [Header("Items")]
-    [SerializeField]
-    private List<Item> registeredItems;
+public class ItemRegistry : StandaloneSingleton<ItemRegistry> {
 
-    [Header("Loading")]
-    [SerializeField]
     private bool loadFromResources = true;
-    [SerializeField]
     private string resourcesPath = "Items/";
 
     private readonly Dictionary<string, Item> items = new();
 
-    public override void Awake() {
-        base.Awake();
+    public ItemRegistry() {
         if (loadFromResources) {
             foreach (Item item in Resources.LoadAll<Item>(resourcesPath)) {
-                registeredItems.Add(item);
+                RegisterItem(item);
             }
-        }
-
-        foreach (Item item in registeredItems) {
-            RegisterItem(item);
         }
     }
 

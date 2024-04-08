@@ -43,11 +43,19 @@ namespace BlueSnake.Player {
                 if(hit.collider.TryGetComponent(out IPlayerInteractable interactable) && currentInteractable == null && currentGameObject == null) {
                     currentInteractable = interactable;
                     currentGameObject = hit.collider.gameObject;
+                    EventManager.GetInstance().Publish(new PlayerInteractableHoverEnterEvent {
+                        interactor = this,
+                        target = currentGameObject
+                    });
                     OnHoverEnter();
                 }
             } else {
                 if(currentInteractable != null && currentGameObject != null) {
                     OnHoverExit();
+                    EventManager.GetInstance().Publish(new PlayerInteractableHoverExitEvent {
+                        interactor = this,
+                        target = currentGameObject
+                    });
                     currentInteractable = null;
                     currentGameObject = null;
                 }
@@ -64,6 +72,20 @@ namespace BlueSnake.Player {
         public PlayerInteractor interactor;
         public GameObject target;
 
+    }
+    
+    public class PlayerInteractableHoverEnterEvent : IEvent {
+
+        public PlayerInteractor interactor;
+        public GameObject target;
+        
+    }
+    
+    public class PlayerInteractableHoverExitEvent : IEvent {
+
+        public PlayerInteractor interactor;
+        public GameObject target;
+        
     }
     
     public interface IPlayerInteractable {

@@ -87,8 +87,7 @@ namespace BlueSnake.Player {
         private bool _moved;
         private float _currentStaminaTime;
         private float _currentStamina;
-
-        private float _nextStaminaFadeTime;
+        
         private bool _isFaded;
         private float _bobbingTimer;
         private float _bobbingDefaultY;
@@ -158,18 +157,6 @@ namespace BlueSnake.Player {
             
             HandleGravity();
             
-            //Handle stamina fade
-            if (Time.time <= _nextStaminaFadeTime && staminaEnabled) {
-                if (!_isFaded) {
-                    _isFaded = true;
-                   // fadeStaminaBarAnimation.StartAnimation();
-                }
-            } else {
-                if (_isFaded) {
-                   // fadeStaminaBarAnimation.StopAnimation();
-                    _isFaded = false;
-                }
-            }
             
             //Handle fov
             if (cameraController != null) {
@@ -188,7 +175,6 @@ namespace BlueSnake.Player {
                 return;
             }
             _currentStamina = nextStamina;
-            _nextStaminaFadeTime = Time.time + fadeDuration;
         }
         
         
