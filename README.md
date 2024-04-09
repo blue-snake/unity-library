@@ -7,13 +7,21 @@
 - EventManager
 - AudioManager
 - UI Animations
-- MenuManager
+- UI Bars
 - UI Buttons
+- MenuManager
 - OptionsManager
 - Inventory
-- FirstPerson Movement Controller
+- Item Sway
+- First Person Movement Controller
 - Camera Controller
-- UI Bars
+
+
+## Planned features
+- AI Controller
+- Third Person Movement Controller 
+- Third Person Camera Controller
+- Terrain texture based actions
 
 ## Install package
 

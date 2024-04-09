@@ -51,9 +51,6 @@ namespace BlueSnake.Player {
         [SerializeField]
         private float staminaTime = 0.1f;
 
-        [SerializeField]
-        private float fadeDuration = 2f;
-
         [Header("Head Bobbing")]
         [SerializeField]
         private bool bobbingEnabled = true;
