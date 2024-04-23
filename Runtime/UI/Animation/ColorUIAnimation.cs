@@ -26,7 +26,6 @@ namespace BlueSnake.UI.Animation {
         public override IEnumerator PlayAnimation() {
             CancelAnimation();
             bool running = true;
-            Debug.Log("ColorUIAnimation PlayAnimation");
             ColorTween tween = new ColorTween {
                 from = target.color,
                 to = color,
@@ -45,7 +44,7 @@ namespace BlueSnake.UI.Animation {
             while (running) {
                 yield return null;
             }
-            Debug.Log("ColorUIAnimation PlayAnimation Done");
+     
 
             _tweenInstance = null;
         }
