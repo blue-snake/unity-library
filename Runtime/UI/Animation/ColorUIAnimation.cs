@@ -36,7 +36,6 @@ namespace BlueSnake.UI.Animation {
                     running = false;
                 },
                 onUpdate = (_, clr) => {
-                    Debug.Log(clr);
                     target.color = clr;
                 }
             };
