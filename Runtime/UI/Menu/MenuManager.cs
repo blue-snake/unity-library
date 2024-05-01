@@ -9,18 +9,14 @@ namespace BlueSnake.UI.Menu {
 
         public Dictionary<string, Menu> Menus = new();
         private List<Menu> _openMenus = new();
-
-        private EventManager _eventManager;
+        
 
         public MenuManager() {
             SceneManager.sceneUnloaded += scene => {
                 _openMenus.Clear();
             };
         }
-
-        public void InitializeEventManager(EventManager eventManager) {
-            _eventManager = eventManager;
-        }
+        
 
         public void Register(Menu menu) {
             Menus[menu.id] = menu;
@@ -56,7 +52,7 @@ namespace BlueSnake.UI.Menu {
             }
             _openMenus.Add(menu);
             menu.Open();
-            _eventManager?.Publish(new MenuOpenEvent {
+            EventManager.GetInstance().Publish(new MenuOpenEvent {
                 menu = menu
             });
             return menu;
@@ -89,17 +85,17 @@ namespace BlueSnake.UI.Menu {
         public void Close() {
             foreach (Menu menu in _openMenus) {
                 menu.Close();
-                _eventManager?.Publish(new MenuCloseEvent {
+                EventManager.GetInstance().Publish(new MenuCloseEvent {
                     menu = menu
                 });
             }
             _openMenus.Clear();
-            _eventManager?.Publish(new MenuCloseAllEvent());
+            EventManager.GetInstance().Publish(new MenuCloseAllEvent());
         }
         
         private void CloseChildrenRecursive(Menu menu) {
             menu.Close();
-            _eventManager?.Publish(new MenuCloseEvent {
+            EventManager.GetInstance().Publish(new MenuCloseEvent {
                 menu = menu
             });
             _openMenus.Remove(menu);
