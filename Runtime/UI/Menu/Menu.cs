@@ -39,6 +39,7 @@ namespace BlueSnake.UI.Menu {
         public void Open() {
             if (animator != null) {
                 animator.PlayTransition("Open");
+                onOpen?.Invoke();
             } else {
                 OpenFallback();
             }
@@ -47,6 +48,7 @@ namespace BlueSnake.UI.Menu {
         public IEnumerator OpenAwaitable() {
             if (animator != null) {
                 yield return animator.RunTransition("Open");
+                onOpen?.Invoke();
             } else {
                 OpenFallback();
             }
@@ -55,6 +57,7 @@ namespace BlueSnake.UI.Menu {
         public void Close() {
             if (animator != null) {
                 animator.PlayTransition("Closed");
+                onClose?.Invoke();
             } else {
                 CloseFallback();
             }
@@ -63,6 +66,7 @@ namespace BlueSnake.UI.Menu {
         public IEnumerator CloseAwaitable() {
             if (animator != null) {
                 yield return animator.RunTransition("Closed");
+                onClose?.Invoke();
             } else {
                 CloseFallback();
             }
