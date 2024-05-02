@@ -27,10 +27,6 @@ namespace BlueSnake.UI.Animation {
         
         public override IEnumerator PlayAnimation() {
             CancelAnimation();
-            if (handleRaycasts) {
-                target.blocksRaycasts = type == FadeType.FadeOut;
-            }
-
             bool running = true;
             FloatTween tween = new FloatTween {
                 from = target.alpha,
@@ -42,7 +38,7 @@ namespace BlueSnake.UI.Animation {
                 },
                 onFinally = _ => {
                     if (handleRaycasts) {
-                        target.blocksRaycasts = type == FadeType.FadeOut;
+                        target.blocksRaycasts = type != FadeType.FadeOut;
                     }
 
                     running = false;
