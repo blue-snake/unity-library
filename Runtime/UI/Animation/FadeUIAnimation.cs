@@ -28,7 +28,7 @@ namespace BlueSnake.UI.Animation {
         public override IEnumerator PlayAnimation() {
             CancelAnimation();
             if (handleRaycasts) {
-                target.blocksRaycasts = type != FadeType.FadeOut;
+                target.blocksRaycasts = type == FadeType.FadeOut;
             }
 
             bool running = true;
