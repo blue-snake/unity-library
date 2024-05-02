@@ -1,6 +1,6 @@
 {
     "name": "studio.bluesnake.library",
-    "version": "0.2.4",
+    "version": "0.2.5",
     "displayName": "Blue Snake Library",
     "dependencies": {
         "com.unity.inputsystem": "1.7.0",
