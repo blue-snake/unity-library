@@ -43,11 +43,6 @@ namespace BlueSnake.UI.Menu {
                 return null;
             }
             Menu menu = Menus[id];
-            if (IsAnyMenuOpen()) {
-                if (!menu.HasParent()) {
-                    return null;
-                }
-            }
             if (menu.HasParent()) {
                 if (!IsMenuOpen(menu.parent.id)) {
                     return null;
