@@ -8,16 +8,26 @@ namespace BlueSnake.Event {
 
         public void Subscribe<T>(Type type, EventSubscriber<T> subscriber) where T : IEvent {
             if (!subscribers.ContainsKey(type)) subscribers.Add(type, new List<EventSubscriber>());
-
             subscribers[type].Add(subscriber);
         }
 
-        public void Subscribe<T>(Action<T> action) where T : IEvent {
-            Subscribe(typeof(T), new EventSubscriber<T>(action));
+        public EventSubscriber<T> Subscribe<T>(Action<T> action) where T : IEvent {
+            EventSubscriber<T> subscriber = new EventSubscriber<T>(action);
+            Subscribe(typeof(T), subscriber);
+            return subscriber;
         }
 
-        public void Subscribe<T>(string scope, Action<T> action) where T : IEvent {
-            Subscribe(typeof(T), new EventSubscriber<T>(scope, action));
+        public EventSubscriber<T> Subscribe<T>(string scope, Action<T> action) where T : IEvent {
+            EventSubscriber<T> subscriber = new EventSubscriber<T>(scope, action);
+            Subscribe(typeof(T), subscriber);
+            return subscriber;
+        }
+
+        public void Unsubscribe<T>(EventSubscriber<T> subscriber) where T : IEvent {
+            Type type = typeof(T);
+            if (subscribers.TryGetValue(type, out var list)) {
+                list.Remove(subscriber);
+            }
         }
 
         public void UnsubscribeAll(string scope) {
@@ -29,6 +39,10 @@ namespace BlueSnake.Event {
 
                 foreach (EventSubscriber subscriber in remove) subscribers.Remove(subscriber);
             }
+        }
+
+        public void UnsubscribeAll() {
+            subscribers.Clear();
         }
 
         public void Publish<T>(T callable) where T : IEvent {
