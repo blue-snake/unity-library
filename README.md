@@ -25,18 +25,9 @@
 
 ## Install package
 
-Before you install this package you need to install the tweens package first:
+Before you install this package you need to install the PrimeTween package from the [Asset Store](https://assetstore.unity.com/packages/tools/animation/primetween-high-performance-animations-and-sequences-252960).
 
-Open the package manager under Window -> Package Manager
-
-Press on the + button and select `Install package from git URL`
-
-Copy and paste this link inside the prompt:
-```bash
-https://github.com/jeffreylanters/unity-tweens.git
-```
-
-after you have installed the tweens package you can now install this package 
+after you have installed the PrimeTween package you can now install this package 
 by repeating the process explained before with the following url:
 
 ```bash
@@ -51,12 +42,12 @@ this repository inside the `Assets` folder.
 After cloning you need to install the necessary dependencies to allow you to work
 on this repository:
 
-#### Installing tweens
+#### Installing PrimeTween
 
 Due to the limitation of the `Package Manager` we removed it from the `package.json` file therefore you
 need to install it manually. The process is already explained under `Install packge`
 
-After installing tweens manually you can start working on the other necessary dependencies:
+After installing PrimeTween manually you can start working on the other necessary dependencies:
 
 Open the `package.json` file and look under `dependencies` and start installing it through the `Package Manager`
 
