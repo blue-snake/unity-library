@@ -1,4 +1,4 @@
-﻿using Tweens;
+﻿using PrimeTween;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,24 +12,18 @@ namespace BlueSnake.UI.Bars {
         [Header("Animation")]
         [SerializeField]
         private float duration = 1f;
-        
-        private TweenInstance _tweenInstance;
+
+        private Tween? _tween;
         
         public override void SetValue(float value) {
             float current = currentValue;
             base.SetValue(value);
-            _tweenInstance?.Cancel();
-            FloatTween tween = new FloatTween {
-                from = current,
-                to = value,
-                duration = duration,
-                onUpdate = (_, updatedValue) => {
-                    foreach (Image target in targets) {
-                        target.fillAmount = updatedValue;
-                    }
+            _tween?.Stop();
+            _tween = Tween.Custom(current, value, duration, updatedVal => {
+                foreach (Image target in targets) {
+                    target.fillAmount = updatedVal;
                 }
-            };
-            _tweenInstance = gameObject.AddTween(tween);
+            });
         }
     }
 }

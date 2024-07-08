@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections;
-using Tweens;
+using PrimeTween;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,36 +21,13 @@ namespace BlueSnake.UI.Animation {
         [SerializeField]
         private Color color = Color.blue;
         
-        private TweenInstance _tweenInstance;
-
         public override IEnumerator PlayAnimation() {
             CancelAnimation();
-            bool running = true;
-            ColorTween tween = new ColorTween {
-                from = target.color,
-                to = color,
-                delay = colorDelay,
-                duration = colorDuration,
-                easeType = EaseType.Linear,
-                onFinally = _ => {
-                    running = false;
-                },
-                onUpdate = (_, clr) => {
-                    target.color = clr;
-                }
-            };
-            _tweenInstance = target.gameObject.AddTween(tween);
-            while (running) {
-                yield return null;
-            }
-     
-
-            _tweenInstance = null;
+            yield return Tween.Color(target, color, colorDuration, startDelay: colorDelay).ToYieldInstruction();
         }
 
         public override void CancelAnimation() {
-            _tweenInstance?.Cancel();
-            _tweenInstance = null;
+            Tween.StopAll(target);
         }
     }
 }

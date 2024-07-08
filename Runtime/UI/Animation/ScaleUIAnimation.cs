@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections;
-using Tweens;
+using PrimeTween;
 using UnityEngine;
 
 namespace BlueSnake.UI.Animation {
@@ -18,30 +18,15 @@ namespace BlueSnake.UI.Animation {
 
         [SerializeField]
         private float scaleDuration = 0.2f;
-
-        private TweenInstance _instance;
+        
         
         public override IEnumerator PlayAnimation() {
             CancelAnimation();
-            bool running = true;
-            LocalScaleTween tween = new LocalScaleTween {
-                from = target.transform.localScale,
-                to = scaleAmount,
-                delay = scaleDelay,
-                duration = scaleDuration,
-                onFinally = _ => {
-                    running = false;
-                }
-            };
-            _instance = target.AddTween(tween);
-            while (running) {
-                yield return null;
-            }
-            _instance = null;
+            yield return Tween.Scale(target.transform, scaleAmount, scaleDuration, Ease.Linear, startDelay: scaleDelay).ToYieldInstruction();
         }
         
         public override void CancelAnimation() {
-            _instance?.Cancel();
+            Tween.StopAll(target.transform);
         }
     }
 }
