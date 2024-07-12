@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections;
-using Tweens;
+using PrimeTween;
 using UnityEngine;
 
 namespace BlueSnake.UI.Animation {
@@ -21,31 +21,14 @@ namespace BlueSnake.UI.Animation {
         [SerializeField]
         private Vector3 slidePosition;
         
-        private TweenInstance _tweenInstance;
 
         public override IEnumerator PlayAnimation() {
             CancelAnimation();
-            bool running = true;
-            LocalPositionTween tween = new LocalPositionTween() {
-                from = target.localPosition,
-                to = slidePosition,
-                delay = slideDelay,
-                duration = slideDuration,
-                onFinally = _ => {
-                    running = false;
-                }
-            };
-            _tweenInstance = target.gameObject.AddTween(tween);
-
-            while (running) {
-                yield return null;
-            }
-            _tweenInstance = null;
+            yield return Tween.LocalPosition(target, slidePosition, slideDuration, startDelay: slideDelay).ToYieldInstruction();
         }
 
         public override void CancelAnimation() {
-            _tweenInstance?.Cancel();
-            _tweenInstance = null;
+            Tween.StopAll(target);
         }
     }
-}
+} 

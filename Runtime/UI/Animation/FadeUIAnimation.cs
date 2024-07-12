@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections;
-using Tweens;
+using PrimeTween;
 using UnityEngine;
 
 namespace BlueSnake.UI.Animation {
@@ -23,39 +23,17 @@ namespace BlueSnake.UI.Animation {
         [SerializeField]
         private float fadeDuration = 1f;
         
-        private TweenInstance _tweenInstance;
         
         public override IEnumerator PlayAnimation() {
             CancelAnimation();
-            bool running = true;
-            FloatTween tween = new FloatTween {
-                from = target.alpha,
-                to = type == FadeType.FadeOut ? 0f : 1f,
-                delay = fadeDelay,
-                duration = fadeDuration,
-                onUpdate = (_, value) => {
-                    target.alpha = value;
-                },
-                onFinally = _ => {
-                    if (handleRaycasts) {
-                        target.blocksRaycasts = type != FadeType.FadeOut;
-                    }
-
-                    running = false;
-                }
-            };
-            _tweenInstance = target.gameObject.AddTween(tween);
-            
-            while (running) {
-                yield return null;
+            if (handleRaycasts) {
+                target.blocksRaycasts = type != FadeType.FadeOut;
             }
-
-            _tweenInstance = null;
+            yield return Tween.Alpha(target, type == FadeType.FadeOut ? 0f : 1f, fadeDuration, startDelay: fadeDelay).ToYieldInstruction();
         }
 
         public override void CancelAnimation() {
-            _tweenInstance?.Cancel();
-            _tweenInstance = null;
+            Tween.StopAll(target);
         }
         
         public enum FadeType {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using Tweens;
 using UnityEngine;
 
 namespace BlueSnake.UI.Animation {
