@@ -54,7 +54,7 @@ namespace BlueSnake.Camera {
         }
 
         public void Update() {
-            if (followTarget != null) {
+            if (followTarget) {
                 _transform.position = followTarget.position;
             }
             Quaternion targetOrientation = Quaternion.Euler(targetDirection);

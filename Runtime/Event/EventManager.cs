@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using BlueSnake.Utils;
 
 namespace BlueSnake.Event {
@@ -46,11 +47,10 @@ namespace BlueSnake.Event {
         }
 
         public void Publish<T>(T callable) where T : IEvent {
-            if (subscribers.ContainsKey(callable.GetType()))
-                foreach (EventSubscriber eventSubscriber in subscribers[callable.GetType()]) {
-                    EventSubscriber<T> sub = (EventSubscriber<T>)eventSubscriber;
-                    sub.OnCall(callable);
-                }
+            if (!subscribers.ContainsKey(callable.GetType())) return;
+            foreach (var sub in subscribers[callable.GetType()].Cast<EventSubscriber<T>>()) {
+                sub.OnCall(callable);
+            }
         }
     }
 

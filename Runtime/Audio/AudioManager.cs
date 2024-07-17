@@ -145,6 +145,8 @@ namespace BlueSnake.Audio {
                     source.pitch = audio.pitch;
                     source.loop = audio.loop;
                     source.rolloffMode = AudioRolloffMode.Linear;
+                    source.bypassReverbZones = audio.bypassReverbZones;
+                    source.bypassEffects = audio.bypassEffects;
 
                     if (audio.enabled) {
                         source.spatialBlend = 1f;
@@ -198,6 +200,10 @@ namespace BlueSnake.Audio {
 
         public float minDistance = 0.1f;
         public float maxDistance = 15f;
+
+        [Header("Filter")]
+        public bool bypassReverbZones;
+        public bool bypassEffects;
 
 
         [Header("Time")]
